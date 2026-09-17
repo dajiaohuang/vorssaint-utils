@@ -26235,12 +26235,14 @@ struct MetricsTests {
         // that keeps a session-level head-insert tap alive, since one still
         // live when Accessibility is revoked is the freeze that teardown
         // exists to prevent. Quit protection and text snippets both keep one
-        // and both were missing. BrightnessService is deliberately out (its
-        // tap sees only NX_SYSDEFINED keys, not typing) and ShortcutRecordingTap
-        // is out because it exists only while a shortcut field records.
+        // and all three were missing. BrightnessService keeps both a
+        // system-defined media tap and a function-key tap that sees every key
+        // press, so it belongs in the same teardown. ShortcutRecordingTap is
+        // out because it exists only while a shortcut field records.
         expect(selfUninstallSource.contains("TextSnippetService.shared.suspend()")
-                && selfUninstallSource.contains("QuitProtectionService.shared.suspend()"),
-               "the permission teardown stops the snippet and quit protection taps too")
+                && selfUninstallSource.contains("QuitProtectionService.shared.suspend()")
+                && selfUninstallSource.contains("BrightnessService.shared.stop()"),
+               "the permission teardown stops every persistent keyboard tap")
         let quitProtectionSource = (try? String(
             contentsOfFile: "Sources/Vorssaint/Services/QuitProtection/QuitProtectionService.swift",
             encoding: .utf8)) ?? ""

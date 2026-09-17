@@ -83,6 +83,7 @@ enum SelfUninstall {
         WindowLayoutService.shared.suspend()
         AppSwitcher.shared.suspend()
         DockPreviewService.shared.stop()
+        BrightnessService.shared.stop()
         AutoQuitService.shared.suspend()
         FinderCutPaste.shared.suspend()
         FinderRenameService.shared.suspend()
