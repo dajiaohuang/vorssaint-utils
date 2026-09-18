@@ -402,7 +402,9 @@ final class BrightnessService: ObservableObject {
     }
 
     func stop() {
-        keyThreadLock.withLock { inputTapsSuspended = false }
+        // Keep the reset guard intact while preferences or feature state
+        // changes during the asynchronous permission teardown. The reset
+        // owner releases it explicitly through resumeInputTaps().
         keyboardNoticeWork?.cancel(); keyboardNoticeWork = nil
         removeKeyTap()
         displayBrightnessDecreaseHotkey.unregister()
