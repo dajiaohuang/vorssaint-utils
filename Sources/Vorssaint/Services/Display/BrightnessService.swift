@@ -974,11 +974,11 @@ final class BrightnessService: ObservableObject {
     private func routeFunctionKey(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             let shouldSync = keyThreadLock.withLock { () -> Bool in
-                guard !inputTapsSuspended else { return false }
                 guard SessionActivity.shared.isActive, AXIsProcessTrusted(),
                       !shouldStopFunctionKeyThread, let tap = functionKeyTap else {
                     return true
                 }
+                guard !inputTapsSuspended else { return false }
                 // Keep the lock through the enable so a main-thread suspend
                 // cannot disable the tap and then lose a race to re-enable it.
                 CGEvent.tapEnable(tap: tap, enable: true)

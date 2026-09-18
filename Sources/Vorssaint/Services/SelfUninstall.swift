@@ -43,6 +43,7 @@ enum SelfUninstall {
     static func uninstallCompletely(onFailure: @escaping () -> Void) {
         DispatchQueue.main.async {
             guard suspendInputInterceptors() else {
+                BrightnessService.shared.resumeInputTaps()
                 onFailure()
                 return
             }
