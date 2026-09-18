@@ -29,7 +29,10 @@ enum SelfUninstall {
                 detachFromSystem()
                 removeSudoersRuleIfPresent {           // may show one admin prompt
                     resetTCC()
-                    DispatchQueue.main.async(execute: completion)
+                    DispatchQueue.main.async {
+                        BrightnessService.shared.resumeInputTaps()
+                        completion()
+                    }
                 }
             }
         }
@@ -45,7 +48,10 @@ enum SelfUninstall {
             }
             DispatchQueue.global(qos: .userInitiated).async {
                 guard detachFromSystem() else {
-                    DispatchQueue.main.async(execute: onFailure)
+                    DispatchQueue.main.async {
+                        BrightnessService.shared.resumeInputTaps()
+                        onFailure()
+                    }
                     return
                 }
                 removeSudoersRuleIfPresent {
@@ -83,7 +89,7 @@ enum SelfUninstall {
         WindowLayoutService.shared.suspend()
         AppSwitcher.shared.suspend()
         DockPreviewService.shared.stop()
-        BrightnessService.shared.stop()
+        BrightnessService.shared.suspendInputTaps()
         AutoQuitService.shared.suspend()
         FinderCutPaste.shared.suspend()
         FinderRenameService.shared.suspend()

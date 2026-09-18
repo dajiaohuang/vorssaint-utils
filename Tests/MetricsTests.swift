@@ -26237,11 +26237,21 @@ struct MetricsTests {
         // exists to prevent. Quit protection and text snippets both keep one
         // and all three were missing. BrightnessService keeps both a
         // system-defined media tap and a function-key tap that sees every key
-        // press, so it belongs in the same teardown. ShortcutRecordingTap is
-        // out because it exists only while a shortcut field records.
+        // press, so it belongs in the same teardown. Only those taps come
+        // down: display routes and gamma state must survive the reset.
+        let brightnessTapMethod = brightnessSource
+            .components(separatedBy: "    func suspendInputTaps()").dropFirst().first?
+            .components(separatedBy: "    private func installFunctionKeyTap").first ?? ""
+        let brightnessTapCode = stripCommentLines(brightnessTapMethod)
         expect(selfUninstallSource.contains("TextSnippetService.shared.suspend()")
                 && selfUninstallSource.contains("QuitProtectionService.shared.suspend()")
-                && selfUninstallSource.contains("BrightnessService.shared.stop()"),
+                && selfUninstallSource.contains("BrightnessService.shared.suspendInputTaps()")
+                && selfUninstallSource.contains("BrightnessService.shared.resumeInputTaps()")
+                && brightnessTapCode.contains("inputTapsSuspended = true")
+                && brightnessTapCode.contains("removeKeyTap()")
+                && brightnessTapCode.contains("removeFunctionKeyTap()")
+                && !brightnessTapCode.contains("restoreManagedDisplays")
+                && !brightnessTapCode.contains("restoreAllGamma"),
                "the permission teardown stops every persistent keyboard tap")
         let quitProtectionSource = (try? String(
             contentsOfFile: "Sources/Vorssaint/Services/QuitProtection/QuitProtectionService.swift",
